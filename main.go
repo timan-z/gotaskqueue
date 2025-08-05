@@ -1,31 +1,36 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	//"encoding/json"
+	//"fmt"
 	"net/http"
-	"time"
+	//"time"
 
-	worker "github.com/timan-z/gotaskqueue/command/worker"
-	queue "github.com/timan-z/gotaskqueue/packages/queue"
-	task "github.com/timan-z/gotaskqueue/packages/task"
+	queue "github.com/timan-z/gotaskqueue/models/queue"
+	//task "github.com/timan-z/gotaskqueue/models/task"
+	producer "github.com/timan-z/gotaskqueue/system/producer"
+	worker "github.com/timan-z/gotaskqueue/system/worker"
 )
 
 var q *queue.Queue
 
-type EnqueueReq struct {
+/*type EnqueueReq struct {
 	//Payload map[string]string `json:"payload"`
 	Payload string `json:"payload"`
-}
+}*/
 
 func main() {
 	// start 3 workers and have them queue the request I send from Postman in real time:
-	q = queue.NewQueue(10)
+	q = queue.NewQueue(100)
 	for i := 1; i <= 3; i++ {
 		worker.StartWorker(i, q.Tasks)
 	}
-
 	port := "8080"
+
+	// start http server to enqueue tasks:
+	producer.StartProducer(q, port)
+
+	/*port := "8080"
 	http.HandleFunc("/api/enqueue", handleEnqueue)
 
 	fmt.Printf("Starting server on port %s...\n", port)
@@ -54,10 +59,10 @@ func main() {
 		}
 
 		time.Sleep(10 * time.Second)
-	}
+	}*/
 }
 
-func handleEnqueue(w http.ResponseWriter, r *http.Request) {
+/*func handleEnqueue(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received:", r.Method, "on", r.URL.Path)
 
 	// Only want to accept POST requests here:
@@ -84,7 +89,7 @@ func handleEnqueue(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"success"}`))
-}
+}*/
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

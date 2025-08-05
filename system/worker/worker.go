@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	task "github.com/timan-z/gotaskqueue/packages/task"
+	task "github.com/timan-z/gotaskqueue/models/task"
 )
 
 func StartWorker(id int, tasks <-chan task.Task) {

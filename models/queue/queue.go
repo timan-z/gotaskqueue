@@ -1,7 +1,7 @@
 package queue
 
 import (
-	task "github.com/timan-z/gotaskqueue/packages/task"
+	task "github.com/timan-z/gotaskqueue/models/task"
 )
 
 type Queue struct {
