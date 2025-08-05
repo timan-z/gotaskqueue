@@ -9,7 +9,6 @@ import (
 
 	queue "github.com/timan-z/gotaskqueue/models/queue"
 	task "github.com/timan-z/gotaskqueue/models/task"
-	//worker "github.com/timan-z/gotaskqueue/system/worker"
 )
 
 // DEBUG: So, going to have the requests just be the string (we can calculate the ID of the task at run-time):
@@ -31,13 +30,16 @@ func StartProducer(q *queue.Queue, port string) {
 
 		// DEBUG: Make an ID for that Job (the string):
 		t := task.Task{
-			ID:      fmt.Sprintf("Task-%d", time.Now().UnixNano()),
-			Payload: req.Payload,
+			ID:         fmt.Sprintf("Task-%d", time.Now().UnixNano()),
+			Payload:    req.Payload,
+			Status:     "queued",
+			Attempts:   0,
+			MaxRetries: 3, // DEBUG: For now 3 will be hardcoded.
 		}
 
 		q.Enqueue(t)
 		fmt.Fprintf(w, "Enqueued tasks: %s (%s)", t.ID, t.Payload)
 	})
-	fmt.Println("[Producer] Listening on :%s...", port)
+	fmt.Printf("[Producer] Listening on :%s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
