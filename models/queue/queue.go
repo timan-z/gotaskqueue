@@ -35,3 +35,34 @@ func (q *Queue) Enqueue(t task.Task) {
 func (q *Queue) Dequeue() task.Task {
 	return <-q.Tasks
 }
+
+// Function for returning a copy of all the tasks we have:
+func (q *Queue) GetJobs() []*task.Task {
+	q.mu.RLock() // "read lock" only
+	defer q.mu.RUnlock()
+
+	jobs := []*task.Task{}
+	for _, t := range q.Jobs {
+		jobs = append(jobs, t)
+	}
+	return jobs
+}
+
+// Get specific Job by ID:
+func (q *Queue) GetJobByID(id string) (*task.Task, bool) {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+	t, ok := q.Jobs[id]
+	return t, ok
+}
+
+// Delete specific Job (by ID):
+func (q *Queue) DeleteJob(id string) bool {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if _, exists := q.Jobs[id]; exists {
+		delete(q.Jobs, id)
+		return true
+	}
+	return false
+}

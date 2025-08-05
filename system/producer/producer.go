@@ -42,4 +42,74 @@ func StartProducer(q *queue.Queue, port string) {
 	})
 	fmt.Printf("[Producer] Listening on :%s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+	// Listing all jobs:
+	// THIS IS FOR [GET /api/jobs] and [GET /api/jobs?status=queued]
+	http.HandleFunc("/api/jobs", func(w http.ResponseWriter, r *http.Request) {
+		status := r.URL.Query().Get("status")
+		allJobs := q.GetJobs()
+
+		var filtered []*task.Task
+		if status == "" {
+			filtered = allJobs
+		} else {
+			for _, t := range allJobs {
+				if t.Status == status {
+					filtered = append(filtered, t)
+				}
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(filtered)
+	})
+
+	// Handling multiple scenarios with this one:
+	http.HandleFunc("/api/jobs/", func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Path[len("/api/jobs/"):]
+		if id == "" {
+			http.NotFound(w, r)
+			return
+		}
+
+		switch r.Method {
+		// THIS IS FOR [GET /api/jobs/:id]
+		case http.MethodGet:
+			t, ok := q.GetJobByID(id)
+			if !ok {
+				http.Error(w, "Job not found", http.StatusNotFound)
+				return
+			}
+			json.NewEncoder(w).Encode(t)
+
+		// for Retry
+		// THIS IS FOR [POST /api/jobs/:id/retry]
+		case http.MethodPost:
+			t, ok := q.GetJobByID(id)
+			if !ok {
+				http.Error(w, "Job not found", http.StatusNotFound)
+				return
+			}
+			if t.Status != "failed" {
+				http.Error(w, "Can only retry failed jobs", http.StatusBadRequest)
+				return
+			}
+			t.Status = "queued"
+			t.Attempts = 0
+			q.Tasks <- *t
+			fmt.Fprintf(w, "Re-enqueued job %s", id)
+
+		// THIS IS FOR [DELETE /api/jobs/:id]
+		case http.MethodDelete:
+			ok := q.DeleteJob(id)
+			if !ok {
+				http.Error(w, "Job not found", http.StatusNotFound)
+				return
+			}
+			fmt.Fprintf(w, "Deleted job %s", id)
+
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 }
