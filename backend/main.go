@@ -1,7 +1,7 @@
 package main
 
 import (
-	"net/http"
+	//"net/http"
 
 	queue "github.com/timan-z/gotaskqueue/models/queue"
 	producer "github.com/timan-z/gotaskqueue/system/producer"
@@ -23,7 +23,7 @@ func main() {
 }
 
 // corsMiddleware function unused for now... -- keep around just in-case I'll need it later:
-func corsMiddleware(next http.Handler) http.Handler {
+/*func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
@@ -39,4 +39,4 @@ func corsMiddleware(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
-}
+}*/

@@ -16,6 +16,25 @@ type EnqueueReq struct {
 	Payload string `json:"payload"`
 }
 
+// DEBUG: Testing having corsMiddleware here...
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
+
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // StartProducer begins the HTTP server that listens for Jobs:
 func StartProducer(q *queue.Queue, port string) {
 	http.HandleFunc("/api/enqueue", func(w http.ResponseWriter, r *http.Request) {
@@ -115,5 +134,5 @@ func StartProducer(q *queue.Queue, port string) {
 		}
 	})
 	fmt.Printf("[Producer] Listening on :%s...\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, corsMiddleware(http.DefaultServeMux)))
 }
