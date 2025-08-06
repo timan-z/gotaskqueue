@@ -6,7 +6,7 @@ export const getAllJobs = async() => {
         method:"GET"
     });
     if(!result.ok) throw new Error("ERROR: Failed to return data for all jobs.");
-    return await result.json()
+    return await result.json();
 }
 
 export const getJobById = async(id: string) => {
@@ -14,6 +14,19 @@ export const getJobById = async(id: string) => {
         method:"GET"
     });
     if(!result.ok) throw new Error(`ERROR: Failed to return data for specific job (by ID:${id}).`);
-    return await result.json()
+    return await result.json();
 }
 
+export const enqueueJob = async(payload: string) => {
+
+    console.log("DEBUG: inside of api.ts -- the value of payload: ", payload);
+    console.log("DEBUG: inside of api.ts -- the value of JSON.stringify(payload) => ", JSON.stringify(payload));
+
+    const result = await fetch(`${API_BASE}/api/enqueue`, {
+        method:"POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({payload}),
+    });
+    if(!result.ok) throw new Error(`ERROR: Failed to enqueue new job with payload: ${payload}`);
+    return await result.json();
+}

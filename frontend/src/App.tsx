@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-import {getAllJobs, getJobById } from './utility/api'
+import {getAllJobs, getJobById, enqueueJob} from './utility/api'
 import type {Task} from './utility/types'
 
-function App() {
+import JobsList from './components/JobsList'
+import JobDisplay from './components/JobDisplay'
 
+function App() {
   const [loading, setLoading] = useState(false);
   const [allJobs, setAllJobs] = useState <Task[]>([]);
   const [getJobId, setGetJobId] = useState <string>("");
   const [jobById, setJobById] = useState <Task | null>(null);
+  const [hideJobsList, setHideJobsList] = useState(true);
+  const [hideJobDisplay, setHideJobDisplay] = useState(true);
+  const [enqueueJobPL, setEnqueueJobPL] = useState<string>("");
 
   useEffect(() => {
     if(allJobs.length > 0) {
@@ -62,13 +67,34 @@ function App() {
     }
   }
 
+  // function to invoke API fetch function "enqueueJob" ([POST /api/enqueue]):
+  const goEnqueueJob = async(event: any) => {
+    event.preventDefault();
+
+    console.log("DEBUG: The value of enqueueJobPL => ", enqueueJobPL);
+    console.log("DEBUG: The value of JSON.stringify(enqueueJobPL) => ", JSON.stringify(enqueueJobPL));
+
+    setLoading(true);
+    try {
+      await enqueueJob(enqueueJobPL);
+    } catch(err: any) {
+      console.error("[goEnqueueJob]ERROR: SOMETHING BAD HAPPEN!!! => ", err);
+      console.log("Something bad happened... what could it be!");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div>
       Yippee!!!
-      
       {/* 1. GET ALL JOBS */}
       {/* Button below will view all jobs w/ [GET /api/jobs] request: */}
       <button id="getAllJobsBtn" type="submit" onClick={()=>goGetAllJobs()}>Get All Jobs</button>
+      <button type="submit" onClick={()=>setHideJobsList(hideJobsList => !hideJobsList)}>Toggle Jobs List</button>
+
+      {/* Have the Jobs List appear beneath the input area: */}
+      {hideJobsList && (<JobsList jobs={allJobs} jobById={jobById} setJobById={setJobById}/>)}
 
       {/* 2. GET JOB BY ID */}
       {/* Going to have a form below with text-input for id so we can do [GET /api/jobs/{id}] request: */}
@@ -81,6 +107,22 @@ function App() {
           onChange={(e) => setGetJobId(e.target.value)}
         />
         <button type="submit">Get Specific Job</button>
+      </form>
+      <button type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Toggle Specific Job Display</button>
+
+      {/* Have the Specific Job Display "Highlight Area" goes here (nothing too fancy yet): */}
+      {hideJobDisplay && jobById && (<JobDisplay job={jobById}/>)}
+
+      {/* TO-DO: Add a manual "enqueue" (create jobs yourself) form here or something. */}
+      <form onSubmit={goEnqueueJob}>
+        <label htmlFor="enqueueJobPLInput">Enter Job Payload:</label>
+        <input
+          type="text"
+          id="enqueueJobPLInput"
+          value={enqueueJobPL}
+          onChange={(e) => setEnqueueJobPL(e.target.value)}
+        />
+        <button type="submit">Enqueue Job</button>
       </form>
 
     </div>

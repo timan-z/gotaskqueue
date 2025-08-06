@@ -1,8 +1,8 @@
 
 export type Task = {
-    id: string;
-    payload: string;
-    status: string;
-    attempts: number;
-    maxRetries: number;
+    ID: string;
+    Payload: string;
+    Status: string;
+    Attempts: number;
+    MaxRetries: number;
 }
