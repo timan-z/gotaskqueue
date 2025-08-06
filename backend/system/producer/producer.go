@@ -40,14 +40,14 @@ func StartProducer(q *queue.Queue, port string) {
 		q.Enqueue(t)
 		fmt.Fprintf(w, "Enqueued tasks: %s (%s)", t.ID, t.Payload)
 	})
-	fmt.Printf("[Producer] Listening on :%s...\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 	// Listing all jobs:
 	// THIS IS FOR [GET /api/jobs] and [GET /api/jobs?status=queued]
 	http.HandleFunc("/api/jobs", func(w http.ResponseWriter, r *http.Request) {
 		status := r.URL.Query().Get("status")
 		allJobs := q.GetJobs()
+
+		fmt.Println("DEBUG: We inside the /api/jobs handler right now...")
 
 		var filtered []*task.Task
 		if status == "" {
@@ -66,6 +66,9 @@ func StartProducer(q *queue.Queue, port string) {
 	// Handling multiple scenarios with this one:
 	http.HandleFunc("/api/jobs/", func(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Path[len("/api/jobs/"):]
+
+		fmt.Println("DEBUG: We inside the /api/jobs/ handler right now...")
+
 		if id == "" {
 			http.NotFound(w, r)
 			return
@@ -111,5 +114,6 @@ func StartProducer(q *queue.Queue, port string) {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
-
+	fmt.Printf("[Producer] Listening on :%s...\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
