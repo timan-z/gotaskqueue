@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	queue "github.com/timan-z/gotaskqueue/models/queue"
@@ -56,6 +57,7 @@ func StartProducer(q *queue.Queue, port string) {
 			Status:     "queued",
 			Attempts:   0,
 			MaxRetries: 3, // DEBUG: For now 3 will be hardcoded.
+			CreatedAt:  time.Now().String(),
 		}
 
 		q.Enqueue(t)
@@ -92,7 +94,7 @@ func StartProducer(q *queue.Queue, port string) {
 
 	// Handling multiple scenarios with this one:
 	http.HandleFunc("/api/jobs/", func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len("/api/jobs/"):]
+		id := r.URL.Path[len("/api/jobs/"):] // so since this handler handles multiple requests -- this will need to be further processed later.
 
 		fmt.Println("DEBUG: We inside the /api/jobs/ handler right now...")
 
@@ -100,6 +102,8 @@ func StartProducer(q *queue.Queue, port string) {
 			http.NotFound(w, r)
 			return
 		}
+
+		fmt.Println("The value of id => ", id)
 
 		switch r.Method {
 		// THIS IS FOR [GET /api/jobs/:id]
@@ -114,19 +118,42 @@ func StartProducer(q *queue.Queue, port string) {
 		// for Retry
 		// THIS IS FOR [POST /api/jobs/:id/retry]
 		case http.MethodPost:
+			// going to need to remove the /retry suffix from id:
+			id := strings.TrimSuffix(id, "/retry")
+
+			fmt.Println("POST-TrimSuffix: The value of id => ", id)
+
+			/* NOTE:+DEBUG: Going to need to completely rehaul how I was going to handle the "retry"
+			mechanism of my project. Instead of just re-inserting it into the queue, I'm going to make
+			a copy of it (clone it w/ a new ID, status/attempts history, etc) and then enqueue that cloned
+			job into the system. (With the original job preserved for history/auditing).
+			This is closer to how real Task Queue systems like Celery etc do it apparently. */
+
+			// NOTE: These checks below won't come about from the ReactTS frontend I have (if encountered it'll be through Postman and stuff):
 			t, ok := q.GetJobByID(id)
 			if !ok {
-				http.Error(w, "Job not found", http.StatusNotFound)
+				http.Error(w, "[Retry Attempt] Job not found", http.StatusNotFound)
 				return
 			}
 			if t.Status != "failed" {
-				http.Error(w, "Can only retry failed jobs", http.StatusBadRequest)
+				http.Error(w, "[Retry Attempt] Can only retry failed jobs", http.StatusBadRequest)
 				return
 			}
-			t.Status = "queued"
-			t.Attempts = 0
-			q.Tasks <- *t
-			fmt.Fprintf(w, "Re-enqueued job %s", id)
+
+			clonedT := task.Task{
+				ID:         fmt.Sprintf("Task-%d", time.Now().UnixNano()),
+				Payload:    t.Payload,
+				Type:       t.Type,
+				Status:     "queued",
+				Attempts:   0,
+				MaxRetries: 0,
+				CreatedAt:  time.Now().String(),
+			}
+
+			q.Enqueue(clonedT)
+			fmt.Fprintf(w, "Re-enqueued job %s with new clone %s", t.ID, clonedT.ID)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(clonedT)
 
 		// THIS IS FOR [DELETE /api/jobs/:id]
 		case http.MethodDelete:

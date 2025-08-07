@@ -7,14 +7,14 @@ import (
 )
 
 type Queue struct {
-	Tasks chan task.Task
+	Tasks chan *task.Task
 	Jobs  map[string]*task.Task
 	mu    sync.RWMutex // to prevent "error: concurrent map writes" errors (to Jobs).
 }
 
 func NewQueue(bufferSize int) *Queue {
 	return &Queue{
-		Tasks: make(chan task.Task, bufferSize),
+		Tasks: make(chan *task.Task, bufferSize),
 		Jobs:  make(map[string]*task.Task),
 	}
 }
@@ -29,10 +29,10 @@ func (q *Queue) Enqueue(t task.Task) {
 		t.MaxRetries = 3
 	}
 	q.Jobs[t.ID] = &t
-	q.Tasks <- t
+	q.Tasks <- &t
 }
 
-func (q *Queue) Dequeue() task.Task {
+func (q *Queue) Dequeue() *task.Task {
 	return <-q.Tasks
 }
 

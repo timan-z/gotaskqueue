@@ -8,4 +8,5 @@ type Task struct {
 	Status     string // "queued", "in-progress", "completed", "failed"
 	Attempts   int
 	MaxRetries int
+	CreatedAt  string // will be time.Now().String()
 }

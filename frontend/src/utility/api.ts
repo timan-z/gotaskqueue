@@ -34,3 +34,11 @@ export const deleteJob = async(id: string) => {
     if(!result.ok) throw new Error(`ERROR: Failed to delete the specific Job (ID:${id})`);
     return await result.json();
 }
+
+export const retryJob = async(id: string) => {
+    const result = await fetch(`${API_BASE}/api/jobs/${id}/retry`, {
+        method:"POST"
+    });
+    if(!result.ok) throw new Error(`ERROR: Failed to retry the job (w/ ID: ${id})`);
+    return await result.json();
+}

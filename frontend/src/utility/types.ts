@@ -6,4 +6,5 @@ export type Task = {
     Status: string;
     Attempts: number;
     MaxRetries: number;
+    CreatedAt: string;
 }
