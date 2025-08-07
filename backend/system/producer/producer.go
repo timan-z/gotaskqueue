@@ -14,6 +14,7 @@ import (
 // DEBUG: So, going to have the requests just be the string (we can calculate the ID of the task at run-time):
 type EnqueueReq struct {
 	Payload string `json:"payload"`
+	Type    string `json:"type"`
 }
 
 // DEBUG: Testing having corsMiddleware here...
@@ -51,6 +52,7 @@ func StartProducer(q *queue.Queue, port string) {
 		t := task.Task{
 			ID:         fmt.Sprintf("Task-%d", time.Now().UnixNano()),
 			Payload:    req.Payload,
+			Type:       req.Type,
 			Status:     "queued",
 			Attempts:   0,
 			MaxRetries: 3, // DEBUG: For now 3 will be hardcoded.

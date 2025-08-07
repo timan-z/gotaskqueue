@@ -24,9 +24,6 @@ const JobsList: React.FC<JobsListProps> = ({jobs, jobById, setJobById}) => {
                         expand the "Speciifc Job Highlight Area" box where all the other information can be seen): */}
                         <div><b>ID:</b>{job.ID}</div>
                         <div><b>Status:</b>{job.Status}</div>
-                        {/*<div><b>Payload:</b>{job.Payload}</div>
-                        <div><b>Attempts:</b>{job.Attempts}</div>
-                        <div><b>Max Retries:</b>{job.MaxRetries}</div>*/}
                     </li>
                 ))}
             </ul>

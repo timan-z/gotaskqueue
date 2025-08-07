@@ -43,6 +43,7 @@ const JobDisplay: React.FC<JobDisplayProps> = ({job, refreshJobs, setLoading, se
                 <div><b>ID:</b>{job?.ID}</div>
                 <div><b>Status:</b>{job?.Status}</div>
                 <div><b>Payload:</b>{job?.Payload}</div>
+                <div><b>Type:</b>{job?.Type}</div>
                 <div><b>Attempts:</b>{job?.Attempts}</div>
                 <div><b>Max Retries:</b>{job?.MaxRetries}</div>
             </div>
