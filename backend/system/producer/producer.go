@@ -24,7 +24,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Vary", "Origin")
 
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == http.MethodOptions {
@@ -57,12 +57,12 @@ func StartProducer(q *queue.Queue, port string) {
 		}
 
 		q.Enqueue(t)
-		fmt.Fprintf(w, "Enqueued tasks: %s (%s)", t.ID, t.Payload)
+		//fmt.Fprintf(w, "Enqueued tasks: %s (%s)", t.ID, t.Payload)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Job enqueued!",
+			"message": fmt.Sprintf("Job %s (%s) enqueued!", t.ID, t.Payload),
 		})
 	})
 
@@ -133,7 +133,11 @@ func StartProducer(q *queue.Queue, port string) {
 				http.Error(w, "Job not found", http.StatusNotFound)
 				return
 			}
-			fmt.Fprintf(w, "Deleted job %s", id)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": fmt.Sprintf("Job %s deleted!", id),
+			})
 
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

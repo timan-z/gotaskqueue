@@ -18,15 +18,19 @@ export const getJobById = async(id: string) => {
 }
 
 export const enqueueJob = async(payload: string) => {
-
-    console.log("DEBUG: inside of api.ts -- the value of payload: ", payload);
-    console.log("DEBUG: inside of api.ts -- the value of JSON.stringify(payload) => ", JSON.stringify(payload));
-
     const result = await fetch(`${API_BASE}/api/enqueue`, {
         method:"POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({payload}),
     });
     if(!result.ok) throw new Error(`ERROR: Failed to enqueue new job with payload: ${payload}`);
+    return await result.json();
+}
+
+export const deleteJob = async(id: string) => {
+    const result = await fetch(`${API_BASE}/api/jobs/${id}`, {
+        method:"DELETE"
+    });
+    if(!result.ok) throw new Error(`ERROR: Failed to delete the specific Job (ID:${id})`);
     return await result.json();
 }

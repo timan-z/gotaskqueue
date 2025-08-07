@@ -111,7 +111,7 @@ function App() {
       <button type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Toggle Specific Job Display</button>
 
       {/* Have the Specific Job Display "Highlight Area" goes here (nothing too fancy yet): */}
-      {hideJobDisplay && jobById && (<JobDisplay job={jobById}/>)}
+      {hideJobDisplay && jobById && (<JobDisplay job={jobById} refreshJobs={goGetAllJobs} setLoading={setLoading} setJobById={setJobById}/>)}
 
       {/* TO-DO: Add a manual "enqueue" (create jobs yourself) form here or something. */}
       <form onSubmit={goEnqueueJob}>
