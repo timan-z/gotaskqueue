@@ -42,3 +42,11 @@ export const retryJob = async(id: string) => {
     if(!result.ok) throw new Error(`ERROR: Failed to retry the job (w/ ID: ${id})`);
     return await result.json();
 }
+
+export const clearQueue = async() => {
+    const result = await fetch(`${API_BASE}/api/clear`, {
+        method:"POST"
+    });
+    if(!result.ok) throw new Error(`ERROR: Failed to clear the queue`);
+    return await result.json();
+}

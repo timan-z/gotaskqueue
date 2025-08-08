@@ -181,6 +181,7 @@ func StartProducer(q *queue.Queue, port string) {
 		}
 		q.Clear()
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{"message": "All jobs in the queue cleared"})
 	})
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-import {getAllJobs, getJobById, enqueueJob} from './utility/api'
+import {getAllJobs, getJobById, enqueueJob, clearQueue} from './utility/api'
 import type {Task} from './utility/types'
 
 import JobsList from './components/JobsList'
@@ -12,7 +12,7 @@ function App() {
   const [allJobs, setAllJobs] = useState <Task[]>([]);
   const [getJobId, setGetJobId] = useState <string>("");
   const [jobById, setJobById] = useState <Task | null>(null);
-  const [hideJobsList, setHideJobsList] = useState(true);
+  const [hideJobsList, setHideJobsList] = useState(false);
   const [hideJobDisplay, setHideJobDisplay] = useState(true);
   const [enqueueJobPL, setEnqueueJobPL] = useState<string>("");
 
@@ -42,7 +42,11 @@ function App() {
       console.error("[goGetAllJobs]ERROR: SOMETHING BAD HAPPEN!!!");
       console.log("Something bad happened... what could it be!");
     } finally {
-      setLoading(false)
+      setLoading(false);
+
+      if(!hideJobsList) {
+        setHideJobsList(hideJobsList => !hideJobsList);
+      }
     }
   }
 
@@ -85,46 +89,80 @@ function App() {
     }
   }
 
+  // function to invoke API fetch function "clearQueue" ([POST /api/clear]):
+  const goClearQueue = async() => {
+    setLoading(true);
+    try {
+      await clearQueue();
+    } catch(err: any) {
+      console.error("[goClearQueue]ERROR: SOMETHING BAD HAPPEN!!! => ", err);
+      console.log("Something bad happened... what could it be!");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div>
-      Yippee!!!
-      {/* 1. GET ALL JOBS */}
-      {/* Button below will view all jobs w/ [GET /api/jobs] request: */}
-      <button id="getAllJobsBtn" type="submit" onClick={()=>goGetAllJobs()}>Get All Jobs</button>
-      <button type="submit" onClick={()=>setHideJobsList(hideJobsList => !hideJobsList)}>Toggle Jobs List</button>
+    <div id="mainPageWrapper">
+      {/* Header: */}
+      <header id="pageTitle">
+        <h1 id="mainHeader" className="headerEl">GoQueue</h1>
+        <h2 className="headerEl">Basically just a bare-essentials simulation of Task Queue programs like Celery and Sidekiq</h2>
+        <p id="pageUndertext">The (backend) logic of which was built entirely in <b>Go</b> (to help better understand <b>Goroutines</b>) with a ReactTS-based Dashboard (<i>which is what you're on now</i>).</p>
+      </header>
 
-      {/* Have the Jobs List appear beneath the input area: */}
-      {hideJobsList && (<JobsList jobs={allJobs} jobById={jobById} setJobById={setJobById}/>)}
+      {/* Main Body: */}
+      <main>
+        {/* 1. Area where you can "View All Jobs" and "Clear Jobs List" (primarily, among other things): */}      
+        <div id="jobsListArea">
+          <div id="jobsListAreaBtns">
+            <button id="getAllJobsBtn" type="submit" onClick={()=>goGetAllJobs()}>Get All Jobs</button> 
+            <button type="submit" onClick={()=>setHideJobsList(hideJobsList => !hideJobsList)}>Hide Jobs List</button>
+            <button type="submit" onClick={()=>goClearQueue()}>Clear Jobs List</button>
+          </div>
+          {/* Jobs List: */}
+          {hideJobsList && (<JobsList jobs={allJobs} jobById={jobById} setJobById={setJobById}/>)}
+        </div>
 
-      {/* 2. GET JOB BY ID */}
-      {/* Going to have a form below with text-input for id so we can do [GET /api/jobs/{id}] request: */}
-      <form onSubmit={goGetJobById}>
-        <label htmlFor="getJobByIdInput">Enter Job ID:</label>
-        <input
-          type="text"
-          id="getJobByIdInput"
-          value={getJobId}
-          onChange={(e) => setGetJobId(e.target.value)}
-        />
-        <button type="submit">Get Specific Job</button>
-      </form>
-      <button type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Toggle Specific Job Display</button>
+        {/* 2. Area where you can view individual jobs in all their specifics: */}
+        <div id="indivJobArea" style={{border:"2px solid black"}} >
 
-      {/* Have the Specific Job Display "Highlight Area" goes here (nothing too fancy yet): */}
-      {hideJobDisplay && jobById && (<JobDisplay job={jobById} refreshJobs={goGetAllJobs} setLoading={setLoading} setJobById={setJobById}/>)}
+          <div id="indivJobAreaBtns">
+            {/* Form below with text-input for id so we can (call the function that) do(es) the [GET /api/jobs/{id}] request: */}
+            <form onSubmit={goGetJobById}>
+              <input
+                type="text"
+                id="getJobByIdInput"
+                value={getJobId}
+                style={{fontFamily:"monospace"}}
+                placeholder="Enter Job ID"
+                onChange={(e) => setGetJobId(e.target.value)}
+              />
+              <button type="submit">Get Specific Job</button>
+            </form>
+            <button type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Toggle Specific Job Display</button>
+          </div>
 
-      {/* TO-DO: Add a manual "enqueue" (create jobs yourself) form here or something. */}
-      <form onSubmit={goEnqueueJob}>
-        <label htmlFor="enqueueJobPLInput">Enter Job Payload:</label>
-        <input
-          type="text"
-          id="enqueueJobPLInput"
-          value={enqueueJobPL}
-          onChange={(e) => setEnqueueJobPL(e.target.value)}
-        />
-        <button type="submit">Enqueue Job</button>
-      </form>
+          {/* Have the Specific Job Display "Highlight Area" goes here (nothing too fancy yet): */}
+          {hideJobDisplay && jobById && (<JobDisplay job={jobById} refreshJobs={goGetAllJobs} setLoading={setLoading} setJobById={setJobById}/>)}
+        </div>
 
+        {/* TO-DO: Add a manual "enqueue" (create jobs yourself) form here or something. */}
+        <div style={{border:"2px solid black"}}>
+
+          <form onSubmit={goEnqueueJob}>
+            <label htmlFor="enqueueJobPLInput">Enter Job Payload:</label>
+            <input
+              type="text"
+              id="enqueueJobPLInput"
+              value={enqueueJobPL}
+              onChange={(e) => setEnqueueJobPL(e.target.value)}
+            />
+            <button type="submit">Enqueue Job</button>
+          </form>
+        </div>
+
+      </main>
     </div>
   )
 }
