@@ -4,9 +4,10 @@ import type {Task} from "../utility/types";
 interface JobsListProps {
     jobs: Task[];   // jobs = tasks, tomato toe-mah-toe.
     setJobById: React.Dispatch<React.SetStateAction<Task | null>>;
+    setHideJobDisplay: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const JobsList: React.FC<JobsListProps> = ({jobs, setJobById}) => {
+const JobsList: React.FC<JobsListProps> = ({jobs, setJobById, setHideJobDisplay}) => {
 
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
@@ -19,7 +20,7 @@ const JobsList: React.FC<JobsListProps> = ({jobs, setJobById}) => {
                         <li
                             key={job.ID}
                             style={{border:"2px solid black", marginTop:"10px", marginBottom:"10px", cursor:"pointer", backgroundColor: isSelected ? "#cceeff" : "white"}}
-                            onClick={()=>{setJobById(job); setSelectedId(job.ID);}}   // Clicking on a specific Job in the list will open the "specific Job display box".
+                            onClick={()=>{setJobById(job); setSelectedId(job.ID); setHideJobDisplay(true);}}   // Clicking on a specific Job in the list will open the "specific Job display box".
                         >
                             {/*In the Jobs List, I'm just going to have ID and status (for more information, you need to expand info):*/}
                             <div><b>ID:</b>{job.ID}</div>

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-
 import {getAllJobs, getJobById, enqueueJob, clearQueue} from './utility/api'
 import type {Task} from './utility/types'
-
 import JobsList from './components/JobsList'
 import JobDisplay from './components/JobDisplay'
+import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -13,25 +12,30 @@ function App() {
   const [getJobId, setGetJobId] = useState <string>("");
   const [jobById, setJobById] = useState <Task | null>(null);
   const [hideJobsList, setHideJobsList] = useState(false);
-  const [hideJobDisplay, setHideJobDisplay] = useState(true);
+  const [hideJobDisplay, setHideJobDisplay] = useState(false);
   const [enqueueJobPL, setEnqueueJobPL] = useState<string>("");
   const [enqueueJobType, setEnqueueJobType] = useState<string>("--");
   const [enqJobPLEmpty, setEnqJobPLEmpty] = useState(false);
   const [enqJobTypeEmpty, setEnqJobTypeEmpty] = useState(false);
 
+  /* Cosmetic useEffect hook for tweaking the display text of the Toggle Jobs List button: */
   useEffect(() => {
-    if(allJobs.length > 0) {
-      console.log("The value of allJobs be => ", allJobs);
+    const toggleText = document.getElementById("hideJobsList");
+    if(hideJobsList) {
+      toggleText!.textContent = "Hide Jobs List"
+    } else {
+      toggleText!.textContent = "Show Jobs List"
     }
-  }, [allJobs]);
-
+  }, [hideJobsList]);
+  /* Another one ^ but for the Toggle Individual Job Display button: */
   useEffect(() => {
-    console.log("DEBUG: The value of getJobId => ", getJobId);
-  }, [getJobId]);
-
-  useEffect(() => {
-    console.log("DEBUG: The vlaue of jobById => ", jobById);
-  }, [jobById]);
+    const toggleText = document.getElementById("toggleJobDispl");
+    if(hideJobDisplay) {
+      toggleText!.textContent = "Show Job Display"
+    } else {
+      toggleText!.textContent = "Hide Job Display"
+    }
+  }, [hideJobDisplay]);
 
   // function to invoke API fetch function "getAllJobs" ([GET /api/jobs]):
   const goGetAllJobs = async() => {
@@ -123,11 +127,9 @@ function App() {
 
       {/* Main Body: */}
       <main>
-
         {/* 1. Enqueue Job Area: */}
         <div id="enqueueJobArea">
           <form id="enqJobAreaForm" onSubmit={goEnqueueJob}>
-
             <div style={{display:"flex", flexDirection:"column"}}>              
               {enqJobPLEmpty && <div style={{color: "#FF4C4C",fontSize: "14px",marginBottom: "5px",animation: "fadeInOut 2.5s ease-in-out",}}>
                 ⚠ Don't leave empty!
@@ -167,17 +169,20 @@ function App() {
 
             <button type="submit">Enqueue Job</button>
           </form>
+
+          {/* Loading Spinner (present for however long each API fetch function lasts): */}
+          {loading && <LoadingSpinner/>}
         </div>
 
         {/* 2. Area where you can "View All Jobs" and "Clear Jobs List" (primarily, among other things): */}      
         <div id="jobsListArea">
           <div id="jobsListAreaBtns">
             <button id="getAllJobsBtn" type="submit" onClick={()=>goGetAllJobs()}>Get All Jobs</button> 
-            <button type="submit" onClick={()=>setHideJobsList(hideJobsList => !hideJobsList)}>Hide Jobs List</button>
+            <button id="hideJobsList" type="submit" onClick={()=>setHideJobsList(hideJobsList => !hideJobsList)}>Hide Jobs List</button>
             <button type="submit" onClick={()=>goClearQueue()}>Clear Jobs List</button>
           </div>
           {/* Jobs List: */}
-          {hideJobsList && (<JobsList jobs={allJobs} setJobById={setJobById}/>)}
+          {hideJobsList && (<JobsList jobs={allJobs} setJobById={setJobById} setHideJobDisplay={setHideJobDisplay}/>)}
         </div>
 
         {/* 3. Area where you can view individual jobs in all their specifics: */}
@@ -196,7 +201,7 @@ function App() {
               />
               <button type="submit">Get Specific Job</button>
             </form>
-            <button type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Toggle Job Display</button>
+            <button id="toggleJobDispl" type="submit" onClick={()=>setHideJobDisplay(hideJobDisplay => !hideJobDisplay)}>Show Job Display</button>
           </div>
 
           {/* Have the Specific Job Display "Highlight Area" goes here (nothing too fancy yet): */}
@@ -204,7 +209,6 @@ function App() {
             {hideJobDisplay && jobById && (<JobDisplay job={jobById} refreshJobs={goGetAllJobs} setLoading={setLoading} setJobById={setJobById}/>)}
           </div>
         </div>
-
       </main>
     </div>
   )
