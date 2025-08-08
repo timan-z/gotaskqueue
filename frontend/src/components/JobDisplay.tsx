@@ -58,8 +58,8 @@ const JobDisplay: React.FC<JobDisplayProps> = ({job, refreshJobs, setLoading, se
     }
 
     return(
-        <div style={{border:"2px solid red"}}>
-            <div>
+        <div id="jobDisplayBox">
+            <div id="jobDisplayBoxInfo">
                 <div><b>ID:</b>{job?.ID}</div>
                 <div><b>Status:</b>{job?.Status}</div>
                 <div><b>Payload:</b>{job?.Payload}</div>
@@ -68,11 +68,15 @@ const JobDisplay: React.FC<JobDisplayProps> = ({job, refreshJobs, setLoading, se
                 <div><b>Max Retries:</b>{job?.MaxRetries}</div>
                 <div><b>Created At:</b>{job?.CreatedAt}</div>
             </div>
-            {/* Want a button here that lets you delete this Job: */}
-            <button onClick={()=>goDeleteJob(job!.ID)}>Delete this Job</button>
+            
+            {/* Buttons to interact w/ the Job Display Box. (Delete specific job or Retry if it failed): */}
+            <div id="jobDisplayBoxBtns">
+                {/* Want a button here that lets you delete this Job: */}
+                <button onClick={()=>goDeleteJob(job!.ID)}>Delete this Job</button>
 
-            {job?.Status == "failed" && <button onClick={()=>goRetryJob(job!.ID)} >Retry this Job</button>}
-            {/* TO-DO: Want a button here that lets you retry this Job if it failed. */}
+                {job?.Status == "failed" && <button onClick={()=>goRetryJob(job!.ID)} >Retry this Job</button>}
+                {/* TO-DO: Want a button here that lets you retry this Job if it failed. */}
+            </div>
         </div>
     );
 };

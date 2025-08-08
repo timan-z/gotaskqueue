@@ -8,9 +8,10 @@ main {
     place-items:center;
 }
 main > div {
-    margin:8px;
+    margin:15px;
 }
 
+/* Header Stuff: */
 #pageTitle {
     display:flex;
     flex-direction:column;
@@ -34,6 +35,36 @@ main > div {
     padding-bottom:1rem;
     font-size:1.2rem;
 }
+
+/* For the Manual Enqueue Job Input Area: */
+#enqueueJobArea {
+    width:575px;
+    padding:20px;
+    display:flex;
+    flex-direction:row;
+    justify-content:space-evenly;
+    align-items:center;
+    background-color:#444;
+}
+#enqJobAreaForm {
+    display:flex;
+    flex-direction:row;
+    justify-content:space-evenly;
+    align-items:center;
+    width:100%;
+}
+#enqJobAreaForm button {
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-family:monospace;
+    padding:5px;
+}
+#enqJobAreaForm button:hover {
+    color:#00a1b6;
+}
+
+/* Jobs List Area: */
 #jobsListArea {
     background-color:#86D4DE;
     border:17.5px solid #444;
@@ -44,10 +75,6 @@ main > div {
     width:575px;
 }
 #jobsListAreaBtns {
-    display:flex;
-    justify-content:space-evenly;
-}
-#indivJobAreaBtns {
     display:flex;
     justify-content:space-evenly;
 }
@@ -69,4 +96,75 @@ main > div {
     color:#00e1ff;
 }
 
+/* Scroll bar for the Jobs List Area: */
+#jobsList::-webkit-scrollbar {
+  width:10px;
+}
+#jobsList::-webkit-scrollbar-track {
+  background: white;
+  border-radius: 25px;
+}
+#jobsList::-webkit-scrollbar-thumb {
+  background-color:#40bcf4;
+  border-radius: 6px;
+  border: 2px solid  #caeff8;
+}
+#jobsList::-webkit-scrollbar-thumb:hover {
+  background-color: #36cff5;
+}
 
+/* Individual Job Display Area: */
+#indivJobArea {
+    background-color:#444;
+    width:500px;
+    padding:10px;
+    box-shadow:-5px -5px 10px 0px rgba(0, 0, 0, 0.5);
+}
+#indivJobAreaBtns {
+    display:flex;
+    justify-content:space-evenly;
+}
+#indivJobAreaBtns button {
+    cursor:pointer;
+    color:#444;
+    background-color:#d1dad9;
+    font-family:monospace;
+}
+#indivJobAreaBtns button:hover {
+    cursor:pointer;
+    color:#00a1b6;
+    background-color:#d1dad9;
+    font-family:monospace;
+}
+#jobDisplayBoxWrapper {
+    padding:10px;
+}
+#jobDisplayBox {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+#jobDisplayBoxInfo {
+    background-color:#86D4DE;
+    padding:5px;
+}
+#jobDisplayBoxBtns {
+    display:flex;
+    width:100%;
+    margin-top:15px;
+    font-family:monospace;
+    justify-content:space-evenly;
+}
+#jobDisplayBoxBtns button{
+    cursor:pointer;
+    border:none;
+    background-color:#d1dad9;
+    border-radius:20px;
+    padding:5px;
+    padding-left:10px;
+    padding-right:10px;
+}
+#jobDisplayBoxBtns button:hover{
+    color:#00a1b6;
+}

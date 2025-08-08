@@ -3,29 +3,31 @@ import type {Task} from "../utility/types";
 
 interface JobsListProps {
     jobs: Task[];   // jobs = tasks, tomato toe-mah-toe.
-    jobById: Task | null;
     setJobById: React.Dispatch<React.SetStateAction<Task | null>>;
 }
 
-const JobsList: React.FC<JobsListProps> = ({jobs, jobById, setJobById}) => {
+const JobsList: React.FC<JobsListProps> = ({jobs, setJobById}) => {
+
+    const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
     return(
-        <div className="JobsListDisplay">
-            <ul>
-                {jobs.map(job=>(
-                    <li
-                        key={job.ID}
-                        style={{border:"2px solid black"}}
-                        /* DEBUG:+TO-DO: I guess, when I have that "specific job display box" -- we can have an onClick button or smth
-                        where you can click a Job inside the JobsList and it'll open that box within the "specific job display box"
-                        (and you'll be able to see its details). */
-                        onClick={()=>setJobById(job)}
-                    >
-                        {/* DEBUG: What we're going to do is **just** display the ID and Status (clicking on it will
-                        expand the "Speciifc Job Highlight Area" box where all the other information can be seen): */}
-                        <div><b>ID:</b>{job.ID}</div>
-                        <div><b>Status:</b>{job.Status}</div>
-                    </li>
-                ))}
+        <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
+            <ul id="jobsList" style={{border:"2px solid black", width:"80%", maxHeight:"300px", overflowY:"scroll", paddingLeft:"10px", paddingRight:"10px"}}>
+                {jobs.map((job) => {
+                    const isSelected = job.ID === selectedId;
+                    return(
+                        <li
+                            key={job.ID}
+                            style={{border:"2px solid black", marginTop:"10px", marginBottom:"10px", cursor:"pointer", backgroundColor: isSelected ? "#cceeff" : "white"}}
+                            onClick={()=>{setJobById(job); setSelectedId(job.ID);}}   // Clicking on a specific Job in the list will open the "specific Job display box".
+                        >
+                            {/*In the Jobs List, I'm just going to have ID and status (for more information, you need to expand info):*/}
+                            <div><b>ID:</b>{job.ID}</div>
+                            <div><b>Status:</b>{job.Status}</div>
+                        </li>
+                    );
+                })}
+                
             </ul>
         </div>
     );
