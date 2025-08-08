@@ -36,6 +36,21 @@ func (q *Queue) Dequeue() *task.Task {
 	return <-q.Tasks
 }
 
+// Emptying the queue:
+func (q *Queue) Clear() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.Jobs = make(map[string]*task.Task) // basically resets the task tracking map.
+	// infinite loop before that basically yanks out every task from the queue and breaks loop via return after it's empty:
+	for {
+		select {
+		case <-q.Tasks:
+		default:
+			return
+		}
+	}
+}
+
 // Function for returning a copy of all the tasks we have:
 func (q *Queue) GetJobs() []*task.Task {
 	q.mu.RLock() // "read lock" only
