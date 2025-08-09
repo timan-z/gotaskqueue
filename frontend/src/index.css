@@ -198,7 +198,7 @@ main > div {
     background-color:white;
     font-family:monospace;
     width:475px;
-    height:250px;
+    height:275px;
     display:flex;
     flex-direction:column;
     align-items:center;
