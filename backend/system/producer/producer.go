@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	queue "github.com/timan-z/gotaskqueue/models/queue"
 	task "github.com/timan-z/gotaskqueue/models/task"
 )
@@ -18,11 +20,24 @@ type EnqueueReq struct {
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
+	/* For Railway integration (needs to be changed to Fly.io afterwards): */
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+			return nil
+		}
+	}
+	allowedOrigin := os.Getenv("CORS_ALLOWED_ORIGIN")
+	allowedOrigin = strings.TrimSuffix(allowedOrigin, "/") // <-- NOTE: This is Railway specific.
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Vary", "Origin")
+		if origin == allowedOrigin {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+		}
 
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
