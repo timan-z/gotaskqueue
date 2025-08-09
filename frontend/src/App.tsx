@@ -214,8 +214,8 @@ function App() {
             <li>Queue size is hardcoded as 100 with a fixed # of 3 workers.</li>
             <li>Job Type Time (s) refers to the time it takes for each worker subroutine to complete the Job/Task (<i>pick "takes-long" and immediately click "Get All Jobs", see its status, and then wait 10s and try again</i>).</li>
           </ul>
+          Currently hosted on Netlify and Railway. See <a href="https://github.com/timan-z/gotaskqueue" target="_blank">README and GitHub repo</a> for further information.
         </div>
-
       </main>
     </div>
   )

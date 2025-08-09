@@ -116,3 +116,7 @@ By default, the API runs on `http://localhost:8080`.
 It’s a **concurrency-focused** backend system that mirrors patterns from production tools like **Celery** and **RabbitMQ**, but in a simpler, self-contained form.
 
 It’s designed as both a learning project and a showcase of **Go concurrency skills**, **API design**, and **system architecture**. (I want to specialize in Go backend engineering, so it's important for me to familiarize with this material).
+
+## Hosting
+- Fronted is currently hosted on <b>Netlify</b> at https://goqueue.netlify.app/
+- Backend is currently hosted on <b>Railway</b>

@@ -52,6 +52,10 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 // StartProducer begins the HTTP server that listens for Jobs:
 func StartProducer(q *queue.Queue, port string) {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "HELLO FROM GO RAILWAY!!!")
+	})
+
 	http.HandleFunc("/api/enqueue", func(w http.ResponseWriter, r *http.Request) {
 		// DEBUG: Take in the job request (just going to be a string):
 		var req EnqueueReq
