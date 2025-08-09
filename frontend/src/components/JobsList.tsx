@@ -5,17 +5,18 @@ interface JobsListProps {
     jobs: Task[];   // jobs = tasks, tomato toe-mah-toe.
     setJobById: React.Dispatch<React.SetStateAction<Task | null>>;
     setHideJobDisplay: React.Dispatch<React.SetStateAction<boolean>>;
+    selectedId: string | null;
+    setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const JobsList: React.FC<JobsListProps> = ({jobs, setJobById, setHideJobDisplay}) => {
-
-    const [selectedId, setSelectedId] = React.useState<string | null>(null);
+const JobsList: React.FC<JobsListProps> = ({jobs, setJobById, setHideJobDisplay, selectedId, setSelectedId}) => {
 
     return(
         <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
             <ul id="jobsList" style={{border:"2px solid black", width:"80%", maxHeight:"300px", overflowY:"scroll", paddingLeft:"10px", paddingRight:"10px"}}>
                 {jobs.map((job) => {
                     const isSelected = job.ID === selectedId;
+
                     return(
                         <li
                             key={job.ID}
@@ -28,7 +29,6 @@ const JobsList: React.FC<JobsListProps> = ({jobs, setJobById, setHideJobDisplay}
                         </li>
                     );
                 })}
-                
             </ul>
         </div>
     );

@@ -17,6 +17,7 @@ function App() {
   const [enqueueJobType, setEnqueueJobType] = useState<string>("--");
   const [enqJobPLEmpty, setEnqJobPLEmpty] = useState(false);
   const [enqJobTypeEmpty, setEnqJobTypeEmpty] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   /* Cosmetic useEffect hook for tweaking the display text of the Toggle Jobs List button: */
   useEffect(() => {
@@ -47,10 +48,8 @@ function App() {
       }
     } catch(err: any) {
       console.error("[goGetAllJobs]ERROR: SOMETHING BAD HAPPEN!!!");
-      console.log("Something bad happened... what could it be!");
     } finally {
       setLoading(false);
-
       if(!hideJobsList) {
         setHideJobsList(hideJobsList => !hideJobsList);
       }
@@ -60,10 +59,6 @@ function App() {
   // function to invoke API fetch function "getJobById" ([GET /api/jobs/:id]):
   const goGetJobById = async(event: any) => {
     event.preventDefault();
-    // NOTE:+TO-DO:+DEBUG: Maybe I should clear the text-input box after a successful search...? (Optional tbh).
-    console.log("DEBUG: Insert goGetJobById func contents...");
-    console.log("Debug: The value of getJobId => ", getJobId);
-
     setLoading(true);
     try {
       const res = await getJobById(getJobId);
@@ -72,8 +67,8 @@ function App() {
       }
     } catch(err: any) {
       console.error("[goGetJobById]ERROR: SOMETHING BAD HAPPEN!!!");
-      console.log("Something bad happened... what could it be!");
     } finally {
+      setSelectedId(null);
       setLoading(false);
     }
   }
@@ -94,11 +89,11 @@ function App() {
 
     setLoading(true);
     try {
-      await enqueueJob(enqueueJobPL);
+      await enqueueJob(enqueueJobPL, enqueueJobType);
     } catch(err: any) {
       console.error("[goEnqueueJob]ERROR: SOMETHING BAD HAPPEN!!! => ", err);
-      console.log("Something bad happened... what could it be!");
     } finally {
+      await goGetAllJobs();
       setLoading(false);
     }
   }
@@ -110,8 +105,9 @@ function App() {
       await clearQueue();
     } catch(err: any) {
       console.error("[goClearQueue]ERROR: SOMETHING BAD HAPPEN!!! => ", err);
-      console.log("Something bad happened... what could it be!");
     } finally {
+      await goGetAllJobs();
+      setJobById(null);
       setLoading(false);
     }
   }
@@ -182,7 +178,7 @@ function App() {
             <button type="submit" onClick={()=>goClearQueue()}>Clear Jobs List</button>
           </div>
           {/* Jobs List: */}
-          {hideJobsList && (<JobsList jobs={allJobs} setJobById={setJobById} setHideJobDisplay={setHideJobDisplay}/>)}
+          {hideJobsList && (<JobsList jobs={allJobs} setJobById={setJobById} setHideJobDisplay={setHideJobDisplay} selectedId={selectedId} setSelectedId={setSelectedId}/>)}
         </div>
 
         {/* 3. Area where you can view individual jobs in all their specifics: */}

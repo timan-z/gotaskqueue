@@ -48,6 +48,7 @@ func StartProducer(q *queue.Queue, port string) {
 			return
 		}
 		fmt.Printf("[handleEnqueue]DEBUG: Received Payload: %s\n", req.Payload)
+		fmt.Printf("[handleEnqueue]DEBUG: Received Type: %s\n", req.Type)
 
 		// DEBUG: Make an ID for that Job (the string):
 		t := task.Task{
@@ -147,7 +148,7 @@ func StartProducer(q *queue.Queue, port string) {
 				Status:     "queued",
 				Attempts:   0,
 				MaxRetries: 0,
-				CreatedAt:  time.Now().String(),
+				CreatedAt:  time.Now().Format("Jan 02, 2006 03:04 PM"),
 			}
 
 			q.Enqueue(clonedT)

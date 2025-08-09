@@ -84,12 +84,6 @@ func StartWorker(id int, tasks chan *task.Task) {
 				t.Status = "completed"
 				fmt.Printf("[Worker %d] Task %s (Type: takes-long) completed\n", id, t.ID)
 
-			/*case "sleep":
-			fmt.Printf("[Worker %d] Task %s sleeping...\n", id, t.ID)
-			time.Sleep(3 * time.Second)
-			t.Status = "completed"
-			fmt.Printf("[Worker %d] Task %s completed\n", id, t.ID)*/
-
 			// DEBUG: add more types later when i'm burnt out and in auto-pilot mode (e-mail and stuff like that).
 			default:
 				// Default simulated work (for random stuff sent in through postman and stuff i guess).

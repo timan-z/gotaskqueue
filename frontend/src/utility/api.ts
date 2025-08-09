@@ -17,13 +17,13 @@ export const getJobById = async(id: string) => {
     return await result.json();
 }
 
-export const enqueueJob = async(payload: string) => {
+export const enqueueJob = async(payload: string, type: string) => {
     const result = await fetch(`${API_BASE}/api/enqueue`, {
         method:"POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({payload}),
+        body: JSON.stringify({payload, type}),
     });
-    if(!result.ok) throw new Error(`ERROR: Failed to enqueue new job with payload: ${payload}`);
+    if(!result.ok) throw new Error(`ERROR: Failed to enqueue new job with payload: ${payload} and type: ${type}`);
     return await result.json();
 }
 
