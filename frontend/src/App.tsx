@@ -205,6 +205,17 @@ function App() {
             {hideJobDisplay && jobById && (<JobDisplay job={jobById} refreshJobs={goGetAllJobs} setLoading={setLoading} setJobById={setJobById}/>)}
           </div>
         </div>
+
+        {/* Small About Panel: */}
+        <div id="AboutPanel">
+          <h2>ABOUT PANEL:</h2>
+          Just a learning project. GoQueue is a Task Queue Dashboard built to interact with a Go-based job/task processing system  inspired by tools like Celery. You can enqueue jobs on the Dashboard, they'll be sent to the back and processed concurrently with worker goroutines, and you can track their status in real-time. 
+          <ul>
+            <li>Queue size is hardcoded as 100 with a fixed # of 3 workers.</li>
+            <li>Job Type Time (s) refers to the time it takes for each worker subroutine to complete the Job/Task (<i>pick "takes-long" and immediately click "Get All Jobs", see its status, and then wait 10s and try again</i>).</li>
+          </ul>
+        </div>
+
       </main>
     </div>
   )

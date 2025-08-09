@@ -9,7 +9,8 @@ import (
 var q *queue.Queue
 
 func main() {
-	// start 3 workers and have them queue the request I send from Postman in real time:
+	// start 3 workers and have them queue the request I send from Postman/Frontend in real time:
+	// TO-DO:(?) Later maybe make the worker count and queue size configurable from frontend? -- not really the point of building this...
 	q = queue.NewQueue(100)
 	for i := 1; i <= 3; i++ {
 		worker.StartWorker(i, q.Tasks)

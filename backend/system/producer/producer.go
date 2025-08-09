@@ -12,13 +12,11 @@ import (
 	task "github.com/timan-z/gotaskqueue/models/task"
 )
 
-// DEBUG: So, going to have the requests just be the string (we can calculate the ID of the task at run-time):
 type EnqueueReq struct {
 	Payload string `json:"payload"`
 	Type    string `json:"type"`
 }
 
-// DEBUG: Testing having corsMiddleware here...
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
@@ -47,27 +45,23 @@ func StartProducer(q *queue.Queue, port string) {
 			http.Error(w, "[handleEnqueue]ERROR: Invalid JSON", http.StatusBadRequest)
 			return
 		}
-		fmt.Printf("[handleEnqueue]DEBUG: Received Payload: %s\n", req.Payload)
-		fmt.Printf("[handleEnqueue]DEBUG: Received Type: %s\n", req.Type)
 
-		// DEBUG: Make an ID for that Job (the string):
+		createdAtTime := time.Now().Format("2006-01-02 15:04:05")
 		t := task.Task{
 			ID:         fmt.Sprintf("Task-%d", time.Now().UnixNano()),
 			Payload:    req.Payload,
 			Type:       req.Type,
 			Status:     "queued",
 			Attempts:   0,
-			MaxRetries: 3, // DEBUG: For now 3 will be hardcoded.
-			CreatedAt:  time.Now().String(),
+			MaxRetries: 3,
+			CreatedAt:  createdAtTime,
 		}
-
 		q.Enqueue(t)
-		//fmt.Fprintf(w, "Enqueued tasks: %s (%s)", t.ID, t.Payload)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{
-			"message": fmt.Sprintf("Job %s (%s) enqueued!", t.ID, t.Payload),
+			"message": fmt.Sprintf("Job %s (Payload: %s, Type: %s) enqueued!", t.ID, t.Payload, t.Type),
 		})
 	})
 
@@ -76,8 +70,6 @@ func StartProducer(q *queue.Queue, port string) {
 	http.HandleFunc("/api/jobs", func(w http.ResponseWriter, r *http.Request) {
 		status := r.URL.Query().Get("status")
 		allJobs := q.GetJobs()
-
-		fmt.Println("DEBUG: We inside the /api/jobs handler right now...")
 
 		var filtered []*task.Task
 		if status == "" {
@@ -95,16 +87,11 @@ func StartProducer(q *queue.Queue, port string) {
 
 	// Handling multiple scenarios with this one:
 	http.HandleFunc("/api/jobs/", func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len("/api/jobs/"):] // so since this handler handles multiple requests -- this will need to be further processed later.
-
-		fmt.Println("DEBUG: We inside the /api/jobs/ handler right now...")
-
+		id := r.URL.Path[len("/api/jobs/"):]
 		if id == "" {
 			http.NotFound(w, r)
 			return
 		}
-
-		fmt.Println("The value of id => ", id)
 
 		switch r.Method {
 		// THIS IS FOR [GET /api/jobs/:id]
@@ -122,9 +109,7 @@ func StartProducer(q *queue.Queue, port string) {
 			// going to need to remove the /retry suffix from id:
 			id := strings.TrimSuffix(id, "/retry")
 
-			fmt.Println("POST-TrimSuffix: The value of id => ", id)
-
-			/* NOTE:+DEBUG: Going to need to completely rehaul how I was going to handle the "retry"
+			/* NOTE:: Going to need to completely rehaul how I was going to handle the "retry"
 			mechanism of my project. Instead of just re-inserting it into the queue, I'm going to make
 			a copy of it (clone it w/ a new ID, status/attempts history, etc) and then enqueue that cloned
 			job into the system. (With the original job preserved for history/auditing).

@@ -13,13 +13,13 @@ func StartWorker(id int, tasks chan *task.Task) {
 		for t := range tasks {
 			if t.Attempts == t.MaxRetries {
 				if t.Status == "failed" {
-					fmt.Printf("[Worker %d] Task %s failed permanently (max retries reached)\n", id, t.ID)
+					fmt.Printf("[Worker %d] Task %s (Type: %s) failed permanently (max retries reached)\n", id, t.ID, t.Type)
 				}
 				return
 			}
 			t.Attempts++
 			t.Status = "in-progress"
-			fmt.Printf("[StartWorker]:[Worker %d] Processing task: %s (Attempt %d - %s)\n", id, t.ID, t.Attempts, t.Status)
+			fmt.Printf("[StartWorker]:[Worker %d] Processing task: %s (Attempt %d - %s, Type: %s)\n", id, t.ID, t.Attempts, t.Status, t.Type)
 
 			switch t.Type {
 			case "fail":
@@ -29,12 +29,12 @@ func StartWorker(id int, tasks chan *task.Task) {
 					randomNum := rand.Float64() // random float between 0.0 and 1.0 gen each iteration:
 
 					if randomNum <= succOdds {
-						fmt.Printf("[Worker %d] Task %s completed\n", id, t.ID)
+						fmt.Printf("[Worker %d] Task %s (Type: fail - 0.25 success rate on retry) completed\n", id, t.ID)
 						time.Sleep(2 * time.Second)
 						t.Status = "completed"
 						break
 					} else {
-						fmt.Printf("[Worker %d] Task %s failed! Retrying...\n", id, t.ID)
+						fmt.Printf("[Worker %d] Task %s (Type: fail - 0.25 success rate on retry) failed! Retrying...\n", id, t.ID)
 						time.Sleep(1 * time.Second)
 						t.Status = "failed"
 						tasks <- t // requeue
@@ -45,14 +45,14 @@ func StartWorker(id int, tasks chan *task.Task) {
 			case "fail-absolute":
 				// This is basically what I originally had for "fail" (no chance of success on each re-try).
 				if t.Attempts <= t.MaxRetries {
-					fmt.Printf("[Worker %d] Task %s failed! Retrying...\n", id, t.ID)
+					fmt.Printf("[Worker %d] Task %s (Type: fail-absolute) failed! Retrying...\n", id, t.ID)
 					time.Sleep(1 * time.Second)
 					t.Status = "failed"
 					tasks <- t // requeue
 					continue
 				}
 				t.Status = "failed"
-				fmt.Printf("[Worker %d] Task %s failed permanently (max retries reached)\n", id, t.ID)
+				fmt.Printf("[Worker %d] Task %s (Type: fail-absolute) failed permanently (max retries reached)\n", id, t.ID)
 
 			case "email":
 				time.Sleep(2 * time.Second)
@@ -79,17 +79,16 @@ func StartWorker(id int, tasks chan *task.Task) {
 				t.Status = "completed"
 				fmt.Printf("[Worker %d] Task %s (Type: newsletter) completed\n", id, t.ID)
 
-			case "takes=long":
+			case "takes-long":
 				time.Sleep(10 * time.Second)
 				t.Status = "completed"
 				fmt.Printf("[Worker %d] Task %s (Type: takes-long) completed\n", id, t.ID)
 
-			// DEBUG: add more types later when i'm burnt out and in auto-pilot mode (e-mail and stuff like that).
 			default:
-				// Default simulated work (for random stuff sent in through postman and stuff i guess).
+				// Default simulated work (for random stuff sent in through postman and stuff I guess, or if anything slips through w/o a type).
 				time.Sleep(2 * time.Second)
 				t.Status = "completed"
-				fmt.Printf("[Worker %d] Task %s completed\n", id, t.ID)
+				fmt.Printf("[Worker %d] Task %s (Undefined Type) completed\n", id, t.ID)
 			}
 		}
 	}()
