@@ -74,7 +74,7 @@ This project demonstrates production-style concurrency patterns — leveraging *
 ### Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/gotaskqueue.git
+git clone https://github.com/{yourusername}/gotaskqueue.git
 cd gotaskqueue/backend
 go mod tidy
 ```
@@ -85,7 +85,7 @@ go mod tidy
 go run main.go
 ```
 
-By default, the API runs on `http://localhost:8080`.
+For myself working locally, the API runs on `http://localhost:8080`, but you should configure this to whatever you're using.
 
 ---
 
